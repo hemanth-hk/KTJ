@@ -1,135 +1,56 @@
-const int trigPin = 19;/* not line follower*/
-const int echoPin = 10;/* ultrasonic sensor*/
+/*------ Arduino Line Follower Code----- */
+/*-------definning Inputs------*/
+#define LS 2      // left sensor
+#define RS 3      // right sensor
 
-long duration;
-int distanceCm, distanceInch;
-
-int wallChecker1 = 0,wallChecker2 = 0,wallChecker3 = 0,wallChecker4 = 0;//checks distances from specific walls
-
-int mot1=9;
-int mot2=6;
-int mot3=5;
-int mot4=3;
-
-int left=13;
-int right=12;
-
-int Left=0;
-int Right=0;
-
-void LEFT (void);
-void RIGHT (void);
-void STOP (void);
+/*-------definning Outputs------*/
+#define LM1 4       // left motor
+#define LM2 5       // left motor
+#define RM1 6       // right motor
+#define RM2 7       // right motor
 
 void setup()
 {
-  pinMode(mot1,OUTPUT);
-  pinMode(mot2,OUTPUT);
-  pinMode(mot3,OUTPUT);
-  pinMode(mot4,OUTPUT);
-
-  pinMode(left,INPUT);
-  pinMode(right,INPUT);
-
-  digitalWrite(left,HIGH);
-  digitalWrite(right,HIGH);
-  
-  pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);/* ultrasonic sensor*/
+  int Sensors[5];
+  for(int i=0;i<5;i++)
+    pinMode(Sensors[i], INPUT);
+  pinMode(LM1, OUTPUT);
+  pinMode(LM2, OUTPUT);
+  pinMode(RM1, OUTPUT);
+  pinMode(RM2, OUTPUT);
 }
 
-void loop() 
+void loop()
 {
-    digitalWrite(trigPin, LOW);/* ultrasonic sensor*/
-    delayMicroseconds(2);
-    digitalWrite(trigPin, HIGH);/* ultrasonic sensor*/
-    delayMicroseconds(10);
-    digitalWrite(trigPin, LOW);
-    duration = pulseIn(echoPin, HIGH);
-    distanceCm= duration*0.034/2;       /* distance from boundary in cm*/
-    distanceInch = duration*0.0133/2;/* distance from boundary in inch*/
-
-  if(){
-    
+  if(digitalRead(Sensors[0]) && digitalRead(Sensors[1]) && digitalRead(Sensors[3]) && digitalRead(Sensors[4]))     // Move Forward
+  {
+    digitalWrite(LM1, HIGH);
+    digitalWrite(LM2, LOW);
+    digitalWrite(RM1, HIGH);
+    digitalWrite(RM2, LOW);
   }
-
-analogWrite(mot1,255);
-analogWrite(mot2,0);
-analogWrite(mot3,255);
-analogWrite(mot4,0);
-
-while(1)
-{
-  Left=digitalRead(left);
-  Right=digitalRead(right);
   
-  if((Left==0 && Right==1)==1)
-  LEFT();
-  else if((Right==0 && Left==1)==1)
-  RIGHT();
-}
-}
-
-void LEFT (void)
-{
-   analogWrite(mot3,0);
-   analogWrite(mot4,30);
-   
-   
-   while(Left==0)
-   {
-    Left=digitalRead(left);
-    Right=digitalRead(right);
-    if(Right==0)
-    {
-      int lprev=Left;
-      int rprev=Right;
-      STOP();
-      while(((lprev==Left)&&(rprev==Right))==1)
-      {
-         Left=digitalRead(left);
-         Right=digitalRead(right);
-      }
-    }
-    analogWrite(mot1,255);
-    analogWrite(mot2,0); 
-   }
-   analogWrite(mot3,255);
-   analogWrite(mot4,0);
-}
-
-void RIGHT (void)
-{
-   analogWrite(mot1,0);
-   analogWrite(mot2,30);
-
-   while(Right==0)
-   {
-    Left=digitalRead(left);
-    Right=digitalRead(right);
-    if(Left==0)
-    {
-      int lprev=Left;
-      int rprev=Right;
-     STOP();
-      while(((lprev==Left)&&(rprev==Right))==1)
-      {
-         Left=digitalRead(left);
-         Right=digitalRead(right);
-      }
-    }
-    analogWrite(mot3,255);
-    analogWrite(mot4,0);
-    }
-   analogWrite(mot1,255);
-   analogWrite(mot2,0);
-}
-void STOP (void)
-{
-analogWrite(mot1,0);
-analogWrite(mot2,0);
-analogWrite(mot3,0);
-analogWrite(mot4,0);
+  if(!(digitalRead(Sensors[0])&&digitalRead(Sensors[1])) && digitalRead(Sensors[3])&&digitalRead(Sensors[4]))     // Turn left
+  {
+    digitalWrite(LM1, LOW);
+    digitalWrite(LM2, LOW);
+    digitalWrite(RM1, HIGH);
+    digitalWrite(RM2, LOW);
+  }
   
+  if(digitalRead(Sensors[0])&&digitalRead(Sensors[1]) && !(digitalRead(Sensors[3])&&digitalRead(Sensors[4])))     // turn right
+  {
+    digitalWrite(LM1, HIGH);
+    digitalWrite(LM2, LOW);
+    digitalWrite(RM1, LOW);
+    digitalWrite(RM2, LOW);
+  }
+  
+  if(!(digitalRead(Sensors[0])&&digitalRead(Sensors[1])) && !(digitalRead(Sensors[3])&&digitalRead(Sensors[4])))     // stop
+  {
+    digitalWrite(LM1, LOW);
+    digitalWrite(LM2, LOW);
+    digitalWrite(RM1, LOW);
+    digitalWrite(RM2, LOW);
+  }
 }
-
